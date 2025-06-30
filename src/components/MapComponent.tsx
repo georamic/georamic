@@ -2,7 +2,7 @@ import { MapContainer, TileLayer, Marker, Popup } from 'react-leaflet';
 import 'leaflet/dist/leaflet.css';
 import L from 'leaflet';
 import { useEffect, useRef, useState } from 'react';
-import type { FeatureData, ProximityData } from '../App';
+import type { ProximityData } from '../App';
 
 delete (L.Icon.Default.prototype as any)._getIconUrl;
 L.Icon.Default.mergeOptions({
@@ -70,7 +70,8 @@ const MapComponent = ({ proximityData }: MapComponentProps) => {
     };
   }, [proximityLayer]);
 
-  const mapCenter = proximityData && proximityData.lat && proximityData.lng
+  // Ensure mapCenter is always a valid LatLngTuple
+  const mapCenter: [number, number] = proximityData && proximityData.lat && proximityData.lng
     ? [proximityData.lat, proximityData.lng]
     : initialPosition;
 

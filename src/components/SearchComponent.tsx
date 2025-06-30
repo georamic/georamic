@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import axios from 'axios';
 import type { ApiResponse } from '../App';
 
@@ -23,7 +23,7 @@ const SearchComponent = ({ setProximityData }: SearchComponentProps) => {
     { name: 'New York, NY', value: 'new_york', lat: 40.7128, lng: -74.0060 },
     { name: 'Chicago, IL', value: 'chicago', lat: 41.8781, lng: -87.6298 },
     { name: 'Los Angeles, CA', value: 'los_angeles', lat: 34.0522, lng: -118.2437 },
-    { name: 'Boise, ID', value: 'boise', lat: 43.6150, lng: -116.2023 }, // Corrected to Boise, ID
+    { name: 'Boise, ID', value: 'boise', lat: 43.6150, lng: -116.2023 },
     { name: 'Houston, TX', value: 'houston', lat: 29.7604, lng: -95.3698 },
     { name: 'Phoenix, AZ', value: 'phoenix', lat: 33.4484, lng: -112.0740 },
     { name: 'Seattle, WA', value: 'seattle', lat: 47.6062, lng: -122.3321 },
@@ -87,9 +87,15 @@ const SearchComponent = ({ setProximityData }: SearchComponentProps) => {
     const payload = { lat: latitude, lng: longitude, mode, time_budget: timeBudget };
     console.log('Sending request to /api/iso_calc/ with payload:', payload);
     try {
-      const response = await axios.post<ApiResponse>('/api/iso_calc/', payload);
-      console.log('API response:', response.data);
-      setProximityData(response.data);
+      if (process.env.NODE_ENV === 'production') {
+        // Mock data for GitHub Pages
+        // const mockResponse = await import('/mockData.json').then((module) => module.default);
+        // setProximityData(mockResponse);
+      } else {
+        const response = await axios.post<ApiResponse>('/api/iso_calc/', payload);
+        console.log('API response:', response.data);
+        setProximityData(response.data);
+      }
     } catch (err) {
       const errorMessage = axios.isAxiosError(err)
         ? err.response?.data?.message || err.message

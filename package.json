@@ -2,7 +2,7 @@
   "name": "georamic",
   "private": true,
   "version": "0.0.0",
-  "homepage": "https://georamic.github.io/", 
+  "homepage": "https://georamic.github.io/georamic/",
   "type": "module",
   "scripts": {
     "dev": "vite",

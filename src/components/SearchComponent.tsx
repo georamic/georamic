@@ -63,7 +63,7 @@ const SearchComponent = ({ setProximityData }: SearchComponentProps) => {
           setShowDropdown(false);
           handleSearch(position.coords.latitude, position.coords.longitude);
         },
-        (err) => {
+        (err:any) => {
           setError('Failed to get location');
           console.error(err);
           setLat(null);
@@ -96,7 +96,7 @@ const SearchComponent = ({ setProximityData }: SearchComponentProps) => {
         console.log('API response:', response.data);
         setProximityData(response.data);
       }
-    } catch (err) {
+    } catch (err:any) {
       const errorMessage = axios.isAxiosError(err)
         ? err.response?.data?.message || err.message
         : 'Failed to fetch isochrone data';

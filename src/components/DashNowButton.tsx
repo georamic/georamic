@@ -21,10 +21,11 @@ const DashNowButton = ({ setProximityData }: DashNowButtonProps) => {
     const payload = { lat, lng, mode, time_budget: timeBudget };
     console.log('Sending request to /api/iso_calc/ with payload:', payload);
     try {
-      const response = await axios.post<ApiResponse>('/api/iso_calc/', payload);
+      const apiUrl = `${import.meta.env.VITE_API_URL}/api/iso_calc/`;
+      const response = await axios.post<ApiResponse>(apiUrl, payload);
       console.log('API response:', response.data);
       setProximityData(response.data);
-    } catch (err) {
+    } catch (err: any) {
       const errorMessage = axios.isAxiosError(err)
         ? err.response?.data?.message || err.message
         : 'Failed to fetch isochrone data';

@@ -1,5 +1,5 @@
 import { useState, useEffect, useRef } from 'react';
-import axios from 'axios';
+import axios, {isAxiosError} from 'axios';
 import type { ApiResponse } from '../App';
 
 interface SearchComponentProps {
@@ -97,7 +97,7 @@ const SearchComponent = ({ setProximityData }: SearchComponentProps) => {
         setProximityData(response.data);
       }
     } catch (err:any) {
-      const errorMessage = axios.isAxiosError(err)
+      const errorMessage = isAxiosError(err)
         ? err.response?.data?.message || err.message
         : 'Failed to fetch isochrone data';
       setError(errorMessage);

@@ -19,7 +19,7 @@ const handleClick = async () => {
   setLoading(true);
   setError(null);
   const payload = { lat, lng, mode, time_budget: timeBudget };
-  console.log('Sending request to /api/iso_calc/ with payload:', payload);
+  console.log('Sending request to /api/iso_calc/ with payload:', payload, 'okkkk');
   const apiUrl = import.meta.env.VITE_API_URL
     ? `${import.meta.env.VITE_API_URL}/api/iso_calc/`
     : 'http://localhost:8000/api/iso_calc/'; // Fallback

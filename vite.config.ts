@@ -5,7 +5,7 @@ import react from '@vitejs/plugin-react';
 export default defineConfig(({ mode }) => {
   return {
     plugins: [react()],
-    base: '/georamic/', // Match your project site subfolder
+    base: '/georamic/', // Ensure this matches your Vercel deployment path
     server: {
       proxy: mode === 'development' ? {
         '/api': {
@@ -13,7 +13,19 @@ export default defineConfig(({ mode }) => {
           changeOrigin: true,
           secure: false,
         },
-      } : undefined, // Use undefined instead of empty object for production
+      } : undefined,
+    },
+    build: {
+      target: 'esnext', // Ensure modern JS is supported
+      assetsInlineLimit: 0, // Prevent inlining assets that might cause MIME issues
+      rollupOptions: {
+        output: {
+          manualChunks: undefined, // Avoid custom chunking that might confuse Vercel
+        },
+      },
+    },
+    esbuild: {
+      logOverride: { 'this-is-undefined-in-esm': 'silent' }, // Suppress potential ESBuild warnings
     },
   };
 });

@@ -1,11 +1,10 @@
 import { defineConfig } from 'vite';
 import react from '@vitejs/plugin-react';
 
-// https://vite.dev/config/
 export default defineConfig(({ mode }) => {
   return {
     plugins: [react()],
-    base: '/georamic/', // Ensure this matches your Vercel deployment path
+    base: '/', // Updated to root path
     server: {
       proxy: mode === 'development' ? {
         '/api': {
@@ -16,16 +15,17 @@ export default defineConfig(({ mode }) => {
       } : undefined,
     },
     build: {
-      target: 'esnext', // Ensure modern JS is supported
-      assetsInlineLimit: 0, // Prevent inlining assets that might cause MIME issues
+      outDir: 'dist', // Ensure output directory is correct
+      target: 'esnext',
+      assetsInlineLimit: 0,
       rollupOptions: {
         output: {
-          manualChunks: undefined, // Avoid custom chunking that might confuse Vercel
+          manualChunks: undefined,
         },
       },
     },
     esbuild: {
-      logOverride: { 'this-is-undefined-in-esm': 'silent' }, // Suppress potential ESBuild warnings
+      logOverride: { 'this-is-undefined-in-esm': 'silent' },
     },
   };
 });

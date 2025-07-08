@@ -1,12 +1,27 @@
 {
+  "builds": [
+    {
+      "src": "dist/**/*",
+      "use": "@vercel/static"
+    }
+  ],
+  "routes": [
+    {
+      "src": "/(.*)",
+      "dest": "/dist/$1"
+    }
+  ],
   "headers": [
     {
-      "source": "/georamic/assets/(.*)\\.(js)$",
+      "source": "/assets/(.*)\\.(js)$",
       "headers": [
-        {
-          "key": "Content-Type",
-          "value": "application/javascript"
-        }
+        { "key": "Content-Type", "value": "application/javascript" }
+      ]
+    },
+    {
+      "source": "/assets/(.*)\\.(css)$",
+      "headers": [
+        { "key": "Content-Type", "value": "text/css" }
       ]
     }
   ]

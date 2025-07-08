@@ -86,17 +86,40 @@ const SearchComponent = ({ setProximityData }: SearchComponentProps) => {
     setError(null);
     const payload = { lat: latitude, lng: longitude, mode, time_budget: timeBudget };
     console.log('Sending request to /api/iso_calc/ with payload:', payload);
+    // try {
+    //   if (process.env.NODE_ENV === 'production') {
+    //     // Mock data for GitHub Pages
+    //     // const mockResponse = await import('/mockData.json').then((module) => module.default);
+    //     // setProximityData(mockResponse);
+    //   } else {
+    //     const response = await axios.post<ApiResponse>('/api/iso_calc/', payload);
+    //     console.log('API response:', response.data);
+    //     setProximityData(response.data);
+    //   }
+    // } catch (err:any) {
+    //   const errorMessage = isAxiosError(err)
+    //     ? err.response?.data?.message || err.message
+    //     : 'Failed to fetch isochrone data';
+    //   setError(errorMessage);
+    //   console.error('API error:', err);
+    // } finally {
+    //   setLoading(false);
+    // }
+    const apiUrl = import.meta.env.VITE_API_URL
+    ? `${import.meta.env.VITE_API_URL}/api/iso_calc/`
+    : 'http://localhost:8000/api/iso_calc/'; // Fallback
+    console.log('API URL:', apiUrl); // Debug the URL
+    if (!apiUrl.startsWith('http')) {
+      console.error('Invalid API URL:', apiUrl);
+      setError('Invalid API URL configuration');
+      setLoading(false);
+      return;
+    }
     try {
-      if (process.env.NODE_ENV === 'production') {
-        // Mock data for GitHub Pages
-        // const mockResponse = await import('/mockData.json').then((module) => module.default);
-        // setProximityData(mockResponse);
-      } else {
-        const response = await axios.post<ApiResponse>('/api/iso_calc/', payload);
-        console.log('API response:', response.data);
-        setProximityData(response.data);
-      }
-    } catch (err:any) {
+      const response = await axios.post<ApiResponse>(apiUrl, payload);
+      console.log('API response:', response.data);
+      setProximityData(response.data);
+    } catch (err: any) {
       const errorMessage = isAxiosError(err)
         ? err.response?.data?.message || err.message
         : 'Failed to fetch isochrone data';

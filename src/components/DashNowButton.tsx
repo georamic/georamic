@@ -15,26 +15,35 @@ const DashNowButton = ({ setProximityData }: DashNowButtonProps) => {
   const mode = 'walk';
   const timeBudget = 10;
 
-  const handleClick = async () => {
-    setLoading(true);
-    setError(null);
-    const payload = { lat, lng, mode, time_budget: timeBudget };
-    console.log('Sending request to /api/iso_calc/ with payload:', payload);
-    try {
-      const apiUrl = `${import.meta.env.VITE_API_URL}/api/iso_calc/`;
-      const response = await axios.post<ApiResponse>(apiUrl, payload);
-      console.log('API response:', response.data);
-      setProximityData(response.data);
-    } catch (err: any) {
-      const errorMessage = isAxiosError(err)
-        ? err.response?.data?.message || err.message
-        : 'Failed to fetch isochrone data';
-      setError(errorMessage);
-      console.error('API error:', err);
-    } finally {
-      setLoading(false);
-    }
-  };
+const handleClick = async () => {
+  setLoading(true);
+  setError(null);
+  const payload = { lat, lng, mode, time_budget: timeBudget };
+  console.log('Sending request to /api/iso_calc/ with payload:', payload);
+  const apiUrl = import.meta.env.VITE_API_URL
+    ? `${import.meta.env.VITE_API_URL}/api/iso_calc/`
+    : 'http://localhost:8000/api/iso_calc/'; // Fallback
+  console.log('API URL:', apiUrl); // Debug the URL
+  if (!apiUrl.startsWith('http')) {
+    console.error('Invalid API URL:', apiUrl);
+    setError('Invalid API URL configuration');
+    setLoading(false);
+    return;
+  }
+  try {
+    const response = await axios.post<ApiResponse>(apiUrl, payload);
+    console.log('API response:', response.data);
+    setProximityData(response.data);
+  } catch (err: any) {
+    const errorMessage = isAxiosError(err)
+      ? err.response?.data?.message || err.message
+      : 'Failed to fetch isochrone data';
+    setError(errorMessage);
+    console.error('API error:', err);
+  } finally {
+    setLoading(false);
+  }
+};
 
   return (
     <div style={{ position: 'absolute', bottom: 20, right: 20, zIndex: 1000 }}>

@@ -4,7 +4,7 @@ import react from '@vitejs/plugin-react';
 export default defineConfig(({ mode }) => {
   return {
     plugins: [react()],
-    base: '/', // Updated to root path
+    base: '/', // Root path for https://georamicnew.vercel.app/
     server: {
       proxy: mode === 'development' ? {
         '/api': {
@@ -15,7 +15,7 @@ export default defineConfig(({ mode }) => {
       } : undefined,
     },
     build: {
-      outDir: 'dist', // Ensure output directory is correct
+      outDir: 'dist',
       target: 'esnext',
       assetsInlineLimit: 0,
       rollupOptions: {
@@ -23,6 +23,7 @@ export default defineConfig(({ mode }) => {
           manualChunks: undefined,
         },
       },
+      emptyOutDir: true, // Ensures dist is cleared before each build
     },
     esbuild: {
       logOverride: { 'this-is-undefined-in-esm': 'silent' },

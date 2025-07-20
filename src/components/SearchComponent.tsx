@@ -1,6 +1,13 @@
+// src/components/SearchComponent.tsx
+// Increased gaps, paddings, and minWidths to make it less compressed
+// Added MUI CircularProgress for animated spinner in loading state
+// Import CircularProgress from '@mui/material'
+// Adjusted spinner size and color to match button (white on blue)
+
 import { useState, useEffect, useRef } from 'react';
-import axios, {isAxiosError} from 'axios';
-import type { ApiResponse } from '../App';
+import axios, { isAxiosError } from 'axios';
+import type { ApiResponse } from '../types';
+import { CircularProgress } from '@mui/material'; // Added import for spinner
 
 interface SearchComponentProps {
   setProximityData: (data: ApiResponse) => void;
@@ -63,7 +70,7 @@ const SearchComponent = ({ setProximityData }: SearchComponentProps) => {
           setShowDropdown(false);
           handleSearch(position.coords.latitude, position.coords.longitude);
         },
-        (err:any) => {
+        (err: any) => {
           setError('Failed to get location');
           console.error(err);
           setLat(null);
@@ -86,28 +93,9 @@ const SearchComponent = ({ setProximityData }: SearchComponentProps) => {
     setError(null);
     const payload = { lat: latitude, lng: longitude, mode, time_budget: timeBudget };
     console.log('Sending request to /api/iso_calc/ with payload:', payload);
-    // try {
-    //   if (process.env.NODE_ENV === 'production') {
-    //     // Mock data for GitHub Pages
-    //     // const mockResponse = await import('/mockData.json').then((module) => module.default);
-    //     // setProximityData(mockResponse);
-    //   } else {
-    //     const response = await axios.post<ApiResponse>('/api/iso_calc/', payload);
-    //     console.log('API response:', response.data);
-    //     setProximityData(response.data);
-    //   }
-    // } catch (err:any) {
-    //   const errorMessage = isAxiosError(err)
-    //     ? err.response?.data?.message || err.message
-    //     : 'Failed to fetch isochrone data';
-    //   setError(errorMessage);
-    //   console.error('API error:', err);
-    // } finally {
-    //   setLoading(false);
-    // }
     const apiUrl = import.meta.env.VITE_API_URL
-    ? `${import.meta.env.VITE_API_URL}/api/iso_calc/`
-    : 'http://localhost:8000/api/iso_calc/'; // Fallback
+      ? `${import.meta.env.VITE_API_URL}/api/iso_calc/`
+      : 'http://localhost:8000/api/iso_calc/'; // Fallback
     console.log('API URL:', apiUrl); // Debug the URL
     if (!apiUrl.startsWith('http')) {
       console.error('Invalid API URL:', apiUrl);
@@ -146,246 +134,212 @@ const SearchComponent = ({ setProximityData }: SearchComponentProps) => {
   return (
     <div
       style={{
-        position: 'absolute',
-        top: 70, // Below AppBarComponent (assuming 64px height + margin)
-        left: '50%',
-        transform: 'translateX(-50%)',
-        zIndex: 1000,
-        backgroundColor: '#F5F5F5', // Light gray for modern look
-        padding: '12px',
+        backgroundColor: 'white', // White background
+        padding: '16px', // Increased padding for more space
         borderRadius: '10px',
         boxShadow: '0 4px 8px rgba(0,0,0,0.15)',
         display: 'flex',
-        flexDirection: 'column',
-        alignItems: 'center',
-        gap: '12px',
-        maxWidth: '700px',
+        flexDirection: 'row', // Inline row
+        alignItems: 'flex-start',
+        gap: '24px', // Increased gap between elements
+        maxWidth: '900px', // Wider max width
         width: '90%',
         transition: 'all 0.3s ease',
+        position: 'relative',
       }}
     >
-      {/* Top Section: Logo and Search Bar */}
+      {/* Company Logo
       <div
         style={{
+          padding: '10px 20px', // Larger padding
+          backgroundColor: '#1E88E5',
+          borderRadius: '6px',
           display: 'flex',
           alignItems: 'center',
           justifyContent: 'center',
-          width: '100%',
-          gap: '12px',
+          color: 'white',
+          fontWeight: 'bold',
+          fontSize: '16px', // Larger font
+          whiteSpace: 'nowrap',
+          marginTop: '24px', // Align with inputs
         }}
       >
-        {/* Company Logo */}
-        {/* <div
+        AccessLite
+      </div> */}
+
+      {/* Search Bar with Dropdown */}
+      <div style={{ position: 'relative', flex: 1 }}>
+        <label
+          htmlFor="location-search"
           style={{
-            padding: '8px 16px',
-            backgroundColor: '#1E88E5', // Vibrant blue
+            display: 'block',
+            fontSize: '14px', // Slightly larger
+            color: '#333333',
+            marginBottom: '6px', // More margin
+            fontWeight: '500',
+          }}
+        >
+          Location
+        </label>
+        <input
+          id="location-search"
+          type="text"
+          value={searchText}
+          onChange={(e) => {
+            setSearchText(e.target.value);
+            setShowDropdown(true);
+          }}
+          onFocus={() => setShowDropdown(true)}
+          placeholder="Search city or use current location"
+          style={{
+            padding: '10px', // Increased padding
             borderRadius: '6px',
+            border: '1px solid #ccc',
+            fontSize: '16px', // Larger font
+            width: '100%',
+            backgroundColor: 'white',
+            color: '#333333',
+            transition: 'border-color 0.3s ease',
+          }}
+          disabled={loading}
+        />
+        {showDropdown && (
+          <div
+            style={{
+              position: 'absolute',
+              top: '100%',
+              left: 0,
+              right: 0,
+              backgroundColor: 'white',
+              borderRadius: '6px',
+              boxShadow: '0 2px 4px rgba(0,0,0,0.15)',
+              zIndex: 1001,
+              maxHeight: '200px',
+              overflowY: 'auto',
+            }}
+          >
+            {filteredCities.length > 0 ? (
+              filteredCities.map((option) => (
+                <div
+                  key={option.value}
+                  onClick={() => handleSelectLocation(option)}
+                  style={{
+                    padding: '10px 14px', // Increased padding
+                    cursor: 'pointer',
+                    fontSize: '16px', // Larger font
+                    color: '#333333',
+                    transition: 'background-color 0.2s ease',
+                  }}
+                  onMouseEnter={(e) => (e.currentTarget.style.backgroundColor = '#E3F2FD')}
+                  onMouseLeave={(e) => (e.currentTarget.style.backgroundColor = 'white')}
+                >
+                  {option.name}
+                </div>
+              ))
+            ) : (
+              <div
+                style={{
+                  padding: '10px 14px',
+                  color: '#999',
+                  fontSize: '16px',
+                }}
+              >
+                No matching locations
+              </div>
+            )}
+          </div>
+        )}
+      </div>
+
+      {/* Mode Dropdown */}
+      <div>
+        <label
+          htmlFor="mode-select"
+          style={{
+            display: 'block',
+            fontSize: '14px',
+            color: '#333333',
+            marginBottom: '6px',
+            fontWeight: '500',
+          }}
+        >
+          Travel Mode
+        </label>
+        <select
+          id="mode-select"
+          value={mode}
+          onChange={(e) => setMode(e.target.value as 'walk' | 'bike')}
+          style={{
+            padding: '10px',
+            borderRadius: '6px',
+            border: '1px solid #ccc',
+            fontSize: '16px',
+            backgroundColor: 'white',
+            color: '#333333',
+            transition: 'border-color 0.3s ease',
+            minWidth: '120px', // Increased min width
+          }}
+          disabled={loading}
+        >
+          <option value="walk">Walk</option>
+          <option value="bike">Bike</option>
+        </select>
+      </div>
+
+      {/* Search Button */}
+      <div>
+        <label
+          style={{
+            display: 'block',
+            fontSize: '14px',
+            color: '#333333',
+            marginBottom: '6px',
+            fontWeight: '500',
+            visibility: 'hidden',
+          }}
+        >
+          Search
+        </label>
+        <button
+          onClick={() => handleSearch()}
+          disabled={loading || !lat || !lng}
+          style={{
+            padding: '10px 20px', // Increased padding
+            backgroundColor: loading || !lat || !lng ? '#ccc' : '#1E88E5',
+            color: 'white',
+            border: 'none',
+            borderRadius: '6px',
+            cursor: loading || !lat || !lng ? 'not-allowed' : 'pointer',
+            fontSize: '16px',
+            transition: 'background-color 0.3s ease',
+            minWidth: '120px', // Increased min width
             display: 'flex',
             alignItems: 'center',
             justifyContent: 'center',
-            color: 'white',
-            fontWeight: 'bold',
-            fontSize: '14px',
-            whiteSpace: 'nowrap',
           }}
         >
-          AccessLite
-        </div> */}
-
-        {/* Search Bar with Dropdown */}
-        <div style={{ position: 'relative', flex: 1 }} ref={searchRef}>
-          <label
-            htmlFor="location-search"
-            style={{
-              display: 'block',
-              fontSize: '12px',
-              color: '#333333',
-              marginBottom: '4px',
-              fontWeight: '500',
-            }}
-          >
-            Location
-          </label>
-          <input
-            id="location-search"
-            type="text"
-            value={searchText}
-            onChange={(e) => {
-              setSearchText(e.target.value);
-              setShowDropdown(true);
-            }}
-            onFocus={() => setShowDropdown(true)}
-            placeholder="Search city or use current location"
-            style={{
-              padding: '8px',
-              borderRadius: '6px',
-              border: '1px solid #ccc',
-              fontSize: '14px',
-              width: '100%',
-              backgroundColor: 'white',
-              color: '#333333', // Black text for readability
-              transition: 'border-color 0.3s ease',
-            }}
-            disabled={loading}
-          />
-          {showDropdown && (
-            <div
-              style={{
-                position: 'absolute',
-                top: '100%',
-                left: 0,
-                right: 0,
-                backgroundColor: 'white',
-                borderRadius: '6px',
-                boxShadow: '0 2px 4px rgba(0,0,0,0.15)',
-                zIndex: 1001,
-                maxHeight: '200px',
-                overflowY: 'auto',
-              }}
-            >
-              {filteredCities.length > 0 ? (
-                filteredCities.map((option) => (
-                  <div
-                    key={option.value}
-                    onClick={() => handleSelectLocation(option)}
-                    style={{
-                      padding: '8px 12px',
-                      cursor: 'pointer',
-                      fontSize: '14px',
-                      color: '#333333',
-                      transition: 'background-color 0.2s ease',
-                    }}
-                    onMouseEnter={(e) => (e.currentTarget.style.backgroundColor = '#E3F2FD')}
-                    onMouseLeave={(e) => (e.currentTarget.style.backgroundColor = 'white')}
-                  >
-                    {option.name}
-                  </div>
-                ))
-              ) : (
-                <div
-                  style={{
-                    padding: '8px 12px',
-                    color: '#999',
-                    fontSize: '14px',
-                  }}
-                >
-                  No matching locations
-                </div>
-              )}
-            </div>
+          {loading ? (
+            <span style={{ display: 'flex', alignItems: 'center' }}>
+              <CircularProgress size={18} color="inherit" style={{ marginRight: '8px' }} /> {/* Animated spinner */}
+              Loading...
+            </span>
+          ) : (
+            'Search'
           )}
-        </div>
+        </button>
       </div>
 
-      {/* Bottom Right: Mode and Search Button */}
-      <div
-        style={{
-          display: 'flex',
-          alignItems: 'center',
-          justifyContent: 'flex-end',
-          width: '100%',
-          gap: '12px',
-        }}
-      >
-        {/* Mode Dropdown */}
-        <div>
-          <label
-            htmlFor="mode-select"
-            style={{
-              display: 'block',
-              fontSize: '12px',
-              color: '#333333',
-              marginBottom: '4px',
-              fontWeight: '500',
-            }}
-          >
-            Travel Mode
-          </label>
-          <select
-            id="mode-select"
-            value={mode}
-            onChange={(e) => setMode(e.target.value as 'walk' | 'bike')}
-            style={{
-              padding: '8px',
-              borderRadius: '6px',
-              border: '1px solid #ccc',
-              fontSize: '14px',
-              backgroundColor: 'white',
-              color: '#333333',
-              transition: 'border-color 0.3s ease',
-            }}
-            disabled={loading}
-          >
-            <option value="walk">Walk</option>
-            <option value="bike">Bike</option>
-          </select>
-        </div>
-
-        {/* Search Button */}
-        <div>
-          <label
-            style={{
-              display: 'block',
-              fontSize: '12px',
-              color: '#333333',
-              marginBottom: '4px',
-              fontWeight: '500',
-              visibility: 'hidden', // Hidden for alignment but accessible
-            }}
-          >
-            Search
-          </label>
-          <button
-            onClick={() => handleSearch()}
-            disabled={loading || !lat || !lng}
-            style={{
-              padding: '8px 16px',
-              backgroundColor: loading || !lat || !lng ? '#ccc' : '#1E88E5',
-              color: 'white',
-              border: 'none',
-              borderRadius: '6px',
-              cursor: loading || !lat || !lng ? 'not-allowed' : 'pointer',
-              fontSize: '14px',
-              transition: 'background-color 0.3s ease',
-            }}
-          >
-            {loading ? (
-              <span>
-                <svg
-                  style={{ marginRight: '5px', verticalAlign: 'middle' }}
-                  width="16"
-                  height="16"
-                  viewBox="0 0 24 24"
-                  fill="none"
-                  xmlns="http://www.w3.org/2000/svg"
-                >
-                  <path
-                    d="M12 2V6M12 18V22M6 12H2M22 12H18M19.071 4.929L16.243 7.757M7.757 16.243L4.929 19.071M4.929 4.929L7.757 7.757M16.243 16.243L19.071 19.071"
-                    stroke="white"
-                    strokeWidth="2"
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    className="animate-spin"
-                  />
-                </svg>
-                Loading...
-              </span>
-            ) : (
-              'Search'
-            )}
-          </button>
-        </div>
-      </div>
-
-      {/* Error Message */}
+      {/* Error Message - Positioned below */}
       {error && (
         <p
           style={{
             color: '#D32F2F',
-            margin: '8px 0 0 0',
-            fontSize: '12px',
+            margin: '12px 0 0 0', // Increased margin
+            fontSize: '14px',
             textAlign: 'center',
             width: '100%',
+            position: 'absolute',
+            bottom: '-28px', // Adjusted for increased space
           }}
         >
           {error}

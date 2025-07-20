@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import axios, { isAxiosError } from 'axios';
-import type { ApiResponse } from '../App';
+import type { ApiResponse } from '../types';
 
 interface DashNowButtonProps {
   setProximityData: (data: ApiResponse) => void;

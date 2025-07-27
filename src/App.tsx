@@ -9,7 +9,7 @@ import SearchComponent from './components/SearchComponent';
 import ChartComponent from './components/ChartComponent';
 import { useState } from 'react';
 import type { ApiResponse, ProximityData } from './types';
-import { Drawer, Typography, Box, CircularProgress } from '@mui/material';
+import { Typography, Box } from '@mui/material';
 
 // Define the city type
 interface City {
@@ -22,8 +22,6 @@ interface City {
 function App() {
   const [selectedCity, setSelectedCity] = useState<City | null>(null);
   const [proximityData, setProximityData] = useState<ProximityData | null>(null);
-  const [sidebarOpen, setSidebarOpen] = useState(false);
-  const [isLoading, setIsLoading] = useState(false);
 
   // Transform API response to ProximityData format (now including population)
   const transformApiResponse = (apiResponse: ApiResponse): ProximityData => {
@@ -49,13 +47,10 @@ function App() {
     };
   };
 
-  // Wrapper for setProximityData: start loading, transform, set data, stop loading, open sidebar
+  // Wrapper for setProximityData: transform and set data
   const handleSetProximityData = async (apiResponse: ApiResponse) => {
-    setIsLoading(true);
-    setSidebarOpen(true); // Open sidebar immediately to show loading
     const transformedData = transformApiResponse(apiResponse);
     setProximityData(transformedData);
-    setIsLoading(false);
   };
 
   return (
@@ -103,11 +98,11 @@ function App() {
 
               {/* Map Component */}
               {proximityData && (
-              <Box sx={{ width: '90%', maxWidth: '850px', height: 400, mt: 4 }}>
-              <MapComponent proximityData={proximityData} />
-              </Box>
-            
+                <Box sx={{ width: '90%', maxWidth: '850px', height: 400, mt: 4 }}>
+                  <MapComponent proximityData={proximityData} />
+                </Box>
               )}
+              
               {/* Chart Component */}
               {proximityData && (
                 <Box
@@ -136,8 +131,6 @@ function App() {
             </Box>
           )}
         </Box>
-
-       
       </Box>
     </div>
   );

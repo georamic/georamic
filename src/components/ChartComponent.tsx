@@ -172,7 +172,7 @@ const ChartComponent: React.FC<ChartComponentProps> = ({ proximityData }) => {
   return (
     <Box sx={{ display: 'flex', flexDirection: 'column', gap: 4, p: 2 }}>
       <Box>
-        <Typography variant="h6" gutterBottom>Feature Counts (Doughnut)</Typography>
+        <Typography variant="h6" gutterBottom>Feature Counts </Typography>
         <Box sx={{ maxWidth: '300px', margin: 'auto' }}> {/* Reduced size */}
           <Doughnut key="countsDoughnut" options={{ ...chartOptions, plugins: { ...chartOptions.plugins, title: { ...chartOptions.plugins.title, text: 'Counts' } } }} data={countsDoughnutData} />
         </Box>

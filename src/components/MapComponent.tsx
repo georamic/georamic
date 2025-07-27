@@ -2,7 +2,7 @@ import { MapContainer, TileLayer, Marker, Popup } from 'react-leaflet';
 import 'leaflet/dist/leaflet.css';
 import L from 'leaflet';
 import { useEffect, useRef, useState } from 'react';
-import type { ProximityData } from '../types';
+import type { ProximityData } from '../types'; // Adjust this import to your path
 
 delete (L.Icon.Default.prototype as any)._getIconUrl;
 L.Icon.Default.mergeOptions({
@@ -10,6 +10,7 @@ L.Icon.Default.mergeOptions({
   iconUrl: 'https://unpkg.com/leaflet@1.9.4/dist/images/marker-icon.png',
   shadowUrl: 'https://unpkg.com/leaflet@1.9.4/dist/images/marker-shadow.png',
 });
+
 
 interface MapComponentProps {
   proximityData: ProximityData | null;
@@ -80,11 +81,12 @@ const MapComponent = ({ proximityData }: MapComponentProps) => {
       ref={mapRef}
       center={mapCenter}
       zoom={13}
-      style={{ height: '100%', width: '100%', position: 'absolute', top: 0, left: 0, zIndex: 0 }}
+      style={{ height: '100%', width: '100%', position: 'relative', zIndex: 0 }}
     >
+
       <TileLayer
-        url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
-        attribution='© <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+        url="https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png"
+        attribution='&copy; <a href="https://carto.com/attributions">CARTO</a>'
       />
       <Marker position={mapCenter}>
         <Popup>Starting Point</Popup>

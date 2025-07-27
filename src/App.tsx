@@ -1,8 +1,8 @@
 // src/App.tsx
-// Added padding-top to the content Box to account for fixed AppBar height (default 64px)
-// Removed overflow: 'hidden' from main div if causing issues; added back if needed for no scroll
-// Ensured the header and search are centered
+// Fixed layout to show SearchComponent below CitySelectComponent
+// Both components are visible when a city is selected
 
+import CitySelectComponent from './components/CitySelectComponent';
 import MapComponent from './components/MapComponent';
 import AppBarComponent from './components/AppBarComponent';
 import SearchComponent from './components/SearchComponent';
@@ -11,10 +11,19 @@ import { useState } from 'react';
 import type { ApiResponse, ProximityData } from './types';
 import { Drawer, Typography, Box, CircularProgress } from '@mui/material';
 
+// Define the city type
+interface City {
+  name: string;
+  value: string;
+  lat: number;
+  lng: number;
+}
+
 function App() {
+  const [selectedCity, setSelectedCity] = useState<City | null>(null);
   const [proximityData, setProximityData] = useState<ProximityData | null>(null);
   const [sidebarOpen, setSidebarOpen] = useState(false);
-  const [isLoading, setIsLoading] = useState(false); // New loading state
+  const [isLoading, setIsLoading] = useState(false);
 
   // Transform API response to ProximityData format (now including population)
   const transformApiResponse = (apiResponse: ApiResponse): ProximityData => {
@@ -41,11 +50,9 @@ function App() {
   };
 
   // Wrapper for setProximityData: start loading, transform, set data, stop loading, open sidebar
-  // Assume SearchComponent calls this on search/submit or dropdown select (update SearchComponent if needed to call on select too)
-  const handleSetProximityData = async (apiResponse: ApiResponse) => { // Made async if API call is inside, but assuming it's sync for now
+  const handleSetProximityData = async (apiResponse: ApiResponse) => {
     setIsLoading(true);
     setSidebarOpen(true); // Open sidebar immediately to show loading
-    // Simulate or actual API wait; assuming response is already fetched in SearchComponent
     const transformedData = transformApiResponse(apiResponse);
     setProximityData(transformedData);
     setIsLoading(false);
@@ -56,16 +63,14 @@ function App() {
       style={{
         height: '100vh',
         width: '100vw',
-        position: 'relative',
-        display: 'flex',
-        flexDirection: 'column',
-        backgroundColor: 'white', // Explicitly set background to white
+        display: 'block',
+        backgroundColor: 'white',
+        overflowY: 'auto',
       }}
     >
       <AppBarComponent />
       <Box
         sx={{
-          flex: 1,
           display: 'flex',
           flexDirection: 'column',
           justifyContent: 'center',
@@ -73,61 +78,67 @@ function App() {
           pt: '64px', // Padding-top to offset fixed AppBar height
         }}
       >
-        <Box sx={{ textAlign: 'center', mb: 4 }}>
-          <Typography variant="h1" sx={{ fontSize: '4rem', fontWeight: 'bold', color: 'black' }}>
-            AccessLite
-          </Typography>
-          <SearchComponent setProximityData={handleSetProximityData} />
+        <Box sx={{ textAlign: 'center', width: '100%' }}>
+          {/* Always show CitySelectComponent */}
+          <CitySelectComponent onCitySelected={(city) => setSelectedCity(city)} />
+          
+          {/* Show SearchComponent below when a city is selected */}
+          {selectedCity && (
+            <Box
+              sx={{
+                mt: 4,
+                display: 'flex',
+                flexDirection: 'column',
+                alignItems: 'center',
+                width: '100%',
+              }}
+            >
+              {/* Search Component */}
+              <Box sx={{ width: '90%', maxWidth: '900px' }}>
+                <SearchComponent
+                  selectedCity={selectedCity}
+                  setProximityData={handleSetProximityData}
+                />
+              </Box>
+
+              {/* Map Component */}
+              {proximityData && (
+              <Box sx={{ width: '90%', maxWidth: '850px', height: 400, mt: 4 }}>
+              <MapComponent proximityData={proximityData} />
+              </Box>
+            
+              )}
+              {/* Chart Component */}
+              {proximityData && (
+                <Box
+                  sx={{
+                    mt: 6,
+                    width: '90%',
+                    maxWidth: '900px',
+                    display: 'flex',
+                    flexDirection: 'column',
+                  }}
+                >
+                  <Typography
+                    variant="subtitle1"
+                    gutterBottom
+                    sx={{
+                      fontWeight: 'bold',
+                      letterSpacing: '0.3px',
+                      fontFamily: 'Roboto, sans-serif',
+                    }}
+                  >
+                    Data Insights
+                  </Typography>
+                  <ChartComponent proximityData={proximityData} />
+                </Box>
+              )}
+            </Box>
+          )}
         </Box>
-      </Box>
 
-      {/* Sidebar Drawer */}
-      <Drawer
-        anchor="right"
-        open={sidebarOpen}
-        onClose={() => setSidebarOpen(false)}
-        sx={{ '& .MuiDrawer-paper': { width: '40vw', p: 2 } }}
-      >
-
-    <Box sx={{ display: 'flex', flexDirection: 'column', height: '100%', overflow: 'auto' }}>
-      <Typography 
-        marginTop={6}
-        variant="subtitle1" 
-        gutterBottom 
-        sx={{ 
-          fontWeight: 'bold', 
-          letterSpacing: '0.3px', 
-          fontFamily: 'Roboto, sans-serif' 
-        }}
-      >
-        Map Overview
-      </Typography>
-      <Box sx={{ height: '40%', position: 'relative' }}> {/* Fixed height for map to prevent overlap; adjust % */}
-        {isLoading ? (
-          <Box sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '100%' }}>
-            <CircularProgress />
-          </Box>
-        ) : (
-          <MapComponent proximityData={proximityData} />
-        )}
+       
       </Box>
-      <Typography 
-        variant="subtitle1" 
-        gutterBottom 
-        sx={{ 
-          mt: 2, 
-          fontWeight: 'bold', 
-          letterSpacing: '0.3px', 
-          fontFamily: 'Roboto, sans-serif' 
-        }}
-      >
-        Data Insights
-      </Typography>
-      <Box sx={{ flex: 1, overflow: 'auto' }}> {/* Flex for charts to take remaining space */}
-        <ChartComponent proximityData={proximityData} />
-      </Box>
-    </Box>
-      </Drawer>
     </div>
   );
 }

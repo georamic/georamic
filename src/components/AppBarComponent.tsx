@@ -9,7 +9,7 @@ const AppBarComponent = () => {
     <AppBar position="fixed" sx={{ zIndex: 1201 }}> {/* Changed to fixed, higher zIndex */}
       <Toolbar>
         <Typography variant="h6" component="div" sx={{ flexGrow: 1 }}>
-          AccessLite
+        Georamic.com | AccessLite
         </Typography>
       </Toolbar>
     </AppBar>
